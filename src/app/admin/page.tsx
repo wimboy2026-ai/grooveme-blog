@@ -6,6 +6,38 @@ import Link from 'next/link';
 
 const AUTH_KEY = 'grooveme_admin_auth';
 
+// API 调用函数
+async function fetchPosts() {
+  const res = await fetch('/api/posts');
+  const data = await res.json();
+  return data.posts || [];
+}
+
+async function createPost(post: any) {
+  const res = await fetch('/api/posts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(post),
+  });
+  return res.json();
+}
+
+async function updatePost(post: any) {
+  const res = await fetch('/api/posts', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(post),
+  });
+  return res.json();
+}
+
+async function deletePostApi(id: string) {
+  const res = await fetch(`/api/posts?id=${id}`, {
+    method: 'DELETE',
+  });
+  return res.json();
+}
+
 // 文章数据类型
 interface Post {
   id: string;
@@ -125,42 +157,28 @@ export default function AdminPage() {
     }
   }, [router]);
 
-  // 加载数据
+  // 从 API 加载数据
   useEffect(() => {
-    // 加载文章
-    const savedPosts = localStorage.getItem('grooveme_posts');
-    if (savedPosts) {
-      setPosts(JSON.parse(savedPosts));
-    } else {
-      setPosts(defaultPosts);
-      localStorage.setItem('grooveme_posts', JSON.stringify(defaultPosts));
+    async function loadData() {
+      try {
+        // 加载文章
+        const postsData = await fetchPosts();
+        setPosts(postsData);
+        
+        // 计算总阅读量
+        const total = postsData.reduce((sum: number, p: Post) => sum + (p.views || 0), 0);
+        setTotalViews(total);
+      } catch (error) {
+        console.error('加载数据失败:', error);
+      }
     }
-
-    // 加载访客记录
-    const savedVisitors = localStorage.getItem('grooveme_visitors');
-    if (savedVisitors) {
-      const v = JSON.parse(savedVisitors);
-      setVisitors(v);
-      setTodayVisitors(v.filter((x: Visitor) => {
-        const visitDate = new Date(x.time);
-        const today = new Date();
-        return visitDate.toDateString() === today.toDateString();
-      }).length);
-    }
-
-    // 计算总阅读量
-    const views = localStorage.getItem('article_views');
-    if (views) {
-      const viewsData: Record<string, number> = JSON.parse(views);
-      const total = Object.values(viewsData).reduce((a, b) => a + b, 0);
-      setTotalViews(total);
-    }
+    loadData();
   }, []);
 
-  // 保存文章
-  const savePosts = (newPosts: Post[]) => {
-    setPosts(newPosts);
-    localStorage.setItem('grooveme_posts', JSON.stringify(newPosts));
+  // 刷新文章列表
+  const refreshPosts = async () => {
+    const postsData = await fetchPosts();
+    setPosts(postsData);
   };
 
   // 登出
@@ -170,37 +188,37 @@ export default function AdminPage() {
   };
 
   // 删除文章
-  const deletePost = (id: string) => {
+  const deletePost = async (id: string) => {
     if (confirm('确定要删除这篇文章吗？')) {
-      const newPosts = posts.filter(p => p.id !== id);
-      savePosts(newPosts);
+      await deletePostApi(id);
+      await refreshPosts();
     }
   };
 
   // 保存编辑
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (!editingPost) return;
     
-    const newPosts = posts.map(p => 
-      p.id === editingPost.id ? editingPost : p
-    );
+    // 判断是新建还是更新
+    const isNew = !posts.find(p => p.id === editingPost.id);
     
-    // 如果是新文章
-    if (!posts.find(p => p.id === editingPost.id)) {
-      newPosts.unshift(editingPost);
+    if (isNew) {
+      await createPost(editingPost);
+    } else {
+      await updatePost(editingPost);
     }
     
-    savePosts(newPosts);
+    await refreshPosts();
     setShowEditor(false);
     setEditingPost(null);
   };
 
   // 创建新文章
   const createNewPost = () => {
-    const newId = String(posts.length + 1);
+    const newNum = String(posts.length + 1).padStart(2, '0');
     const newPost: Post = {
-      id: newId,
-      num: newId.padStart(2, '0'),
+      id: Date.now().toString(),
+      num: newNum,
       tag: '未分类',
       title: '',
       excerpt: '',
