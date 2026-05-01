@@ -200,8 +200,9 @@ export default function AdminPage() {
   const saveEdit = async () => {
     if (!editingPost) return;
     
-    // 判断是新建还是更新
-    const isNew = !posts.find(p => p.id === editingPost.id);
+    // 重新获取最新文章列表来判断是否是新文章
+    const latestPosts = await fetchPosts();
+    const isNew = !latestPosts.find((p: Post) => p.id === editingPost.id);
     
     if (isNew) {
       await createPost(editingPost);
@@ -214,11 +215,17 @@ export default function AdminPage() {
     setEditingPost(null);
   };
 
-  // 创建新文章
-  const createNewPost = () => {
+  // 创建新文章（使用唯一ID）
+  const createNewPost = async () => {
+    // 先刷新文章列表获取最新数量
+    await refreshPosts();
+    
+    // 生成唯一ID：时间戳+随机数
+    const uniqueId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
     const newNum = String(posts.length + 1).padStart(2, '0');
+    
     const newPost: Post = {
-      id: Date.now().toString(),
+      id: uniqueId,
       num: newNum,
       tag: '未分类',
       title: '',
