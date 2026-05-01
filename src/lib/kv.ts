@@ -19,9 +19,21 @@ const getRedisClient = () => {
   return new Redis({ url, token });
 };
 
-// 内存存储作为备用
+// 内存存储作为备用（使用全局变量确保跨请求持久化）
+declare global {
+  var __KV_MEMORY_STORE__: Map<string, string> | undefined;
+}
+
 class MemoryStore {
-  private store: Map<string, string> = new Map();
+  private store: Map<string, string>;
+
+  constructor() {
+    // 使用全局变量，确保跨请求数据持久化
+    if (!globalThis.__KV_MEMORY_STORE__) {
+      globalThis.__KV_MEMORY_STORE__ = new Map();
+    }
+    this.store = globalThis.__KV_MEMORY_STORE__;
+  }
 
   async get(key: string): Promise<string | null> {
     return this.store.get(key) || null;
