@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { kv, POSTS_KEY } from '@/lib/kv';
 
-// 默认文章数据
+// 默认文章数据（内置文章，受保护不可删除）
 const defaultPosts = [
   {
     id: '1',
@@ -13,7 +13,8 @@ const defaultPosts = [
     date: '2026.04.29',
     readTime: '18 分钟',
     views: 1234,
-    status: 'published'
+    status: 'published',
+    isBuiltIn: true
   },
   {
     id: '2',
@@ -25,7 +26,8 @@ const defaultPosts = [
     date: '2026.04.21',
     readTime: '14 分钟',
     views: 892,
-    status: 'published'
+    status: 'published',
+    isBuiltIn: true
   },
   {
     id: '3',
@@ -37,7 +39,8 @@ const defaultPosts = [
     date: '2026.04.14',
     readTime: '11 分钟',
     views: 567,
-    status: 'published'
+    status: 'published',
+    isBuiltIn: true
   },
   {
     id: '4',
@@ -49,7 +52,8 @@ const defaultPosts = [
     date: '2026.04.07',
     readTime: '16 分钟',
     views: 445,
-    status: 'published'
+    status: 'published',
+    isBuiltIn: true
   },
   {
     id: '5',
@@ -61,7 +65,8 @@ const defaultPosts = [
     date: '2026.03.31',
     readTime: '9 分钟',
     views: 678,
-    status: 'published'
+    status: 'published',
+    isBuiltIn: true
   },
   {
     id: '6',
@@ -73,7 +78,8 @@ const defaultPosts = [
     date: '2026.03.24',
     readTime: '12 分钟',
     views: 789,
-    status: 'published'
+    status: 'published',
+    isBuiltIn: true
   }
 ];
 
@@ -128,12 +134,22 @@ export async function PUT(request: Request) {
   return NextResponse.json({ error: 'Post not found' }, { status: 404 });
 }
 
-// DELETE - 删除文章
+// DELETE - 删除文章（内置文章不可删除）
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
   if (id) {
     let posts = await getPosts();
+    const post = posts.find((p: any) => p.id === id);
+    
+    // 检查是否为内置文章
+    if (post?.isBuiltIn) {
+      return NextResponse.json({ 
+        error: '内置文章不可删除', 
+        message: '该文章为系统内置文章，无法删除' 
+      }, { status: 403 });
+    }
+    
     posts = posts.filter((p: any) => p.id !== id);
     await savePosts(posts);
     return NextResponse.json({ success: true });

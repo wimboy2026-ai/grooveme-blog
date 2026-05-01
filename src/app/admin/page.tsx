@@ -50,6 +50,7 @@ interface Post {
   readTime: string;
   views: number;
   status: 'published' | 'draft';
+  isBuiltIn?: boolean;
 }
 
 // 访客记录类型
@@ -448,7 +449,7 @@ export default function AdminPage() {
                         {post.status === 'published' ? '已发布' : '草稿'}
                       </span>
                     </span>
-                    <span style={{ display: 'flex', gap: '8px' }}>
+                    <span style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <button
                         onClick={() => {
                           setEditingPost(post);
@@ -464,19 +465,30 @@ export default function AdminPage() {
                       >
                         编辑
                       </button>
-                      <button
-                        onClick={() => deletePost(post.id)}
-                        style={{
+                      {post.isBuiltIn ? (
+                        <span style={{
                           padding: '4px 8px',
-                          fontSize: '0.7rem',
-                          border: '1px solid var(--accent)',
-                          background: '#fff',
-                          color: 'var(--accent)',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        删除
-                      </button>
+                          fontSize: '0.65rem',
+                          color: 'var(--muted)',
+                          fontStyle: 'italic'
+                        }}>
+                          🔒 内置
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => deletePost(post.id)}
+                          style={{
+                            padding: '4px 8px',
+                            fontSize: '0.7rem',
+                            border: '1px solid var(--accent)',
+                            background: '#fff',
+                            color: 'var(--accent)',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          删除
+                        </button>
+                      )}
                     </span>
                   </div>
                 ))}
