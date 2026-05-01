@@ -1,21 +1,22 @@
-// Vercel KV (Redis) 存储
-// 需要在 Vercel Dashboard 中配置 KV Store
+// Upstash Redis 存储
+// Vercel KV 已迁移到 Upstash Redis
 // 免费额度：每天 10,000 请求
 
-import { createClient } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 
-// 创建 Vercel KV 客户端
-const getKVClient = () => {
-  // 使用环境变量连接 Vercel KV
-  const url = process.env.KV_URL || process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
+// 创建 Upstash Redis 客户端
+const getRedisClient = () => {
+  // 使用环境变量连接 Upstash Redis
+  // Vercel 会自动提供这些变量当连接 Redis 集成后
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
   
   if (!url || !token) {
-    console.warn('Vercel KV 环境变量未配置，使用内存存储');
+    console.warn('Upstash Redis 环境变量未配置，使用内存存储');
     return null;
   }
   
-  return createClient({ url, token });
+  return new Redis({ url, token });
 };
 
 // 内存存储作为备用
@@ -42,11 +43,11 @@ class MemoryStore {
 
 // 统一的 KV 存储接口
 class KVStore {
-  private client: ReturnType<typeof createClient> | null = null;
+  private client: Redis | null = null;
   private memoryStore: MemoryStore;
 
   constructor() {
-    this.client = getKVClient();
+    this.client = getRedisClient();
     this.memoryStore = new MemoryStore();
   }
 
