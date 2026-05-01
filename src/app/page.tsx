@@ -39,7 +39,8 @@ function trackVisitor(page: string) {
   }
 }
 
-const posts = [
+// 默认文章数据（首次加载时使用）
+const defaultPosts = [
   {
     id: '1',
     num: '01',
@@ -47,64 +48,115 @@ const posts = [
     title: '大模型不是工具，是存在论革命',
     excerpt: '当我们把 GPT 称为"工具"，我们继承了笛卡尔的幽灵——一个把主体与客体截然二分的遗产。但大语言模型的出现，是对这一认识论框架的根本性挑战...',
     date: '2026.04.29',
-    readTime: '18 分钟'
+    readTime: '18 分钟',
+    views: 0,
+    status: 'published'
   },
   {
     id: '2',
     num: '02',
     tag: 'AI 哲学',
-    title: 'AI 主体性：从图灵测试到意识考古',
-    excerpt: '图灵测试从未真正测试"智能"，它测试的是人类的自恋——我们把"像人一样说话"等同于"有意识"。本文追溯这一错置的起源，并提出一种新的意识评估框架。',
-    date: '2026.04.21',
-    readTime: '14 分钟'
+    title: '对齐问题：当机器有了"立场"',
+    excerpt: 'RLHF 不仅是一个技术问题，更是一个政治哲学问题。每一次人类反馈，都是在塑造一种价值观...',
+    date: '2026.04.28',
+    readTime: '15 分钟',
+    views: 0,
+    status: 'published'
   },
   {
     id: '3',
     num: '03',
-    tag: '认知科学',
-    title: '当语言模型开始"遗忘"，人类如何重构记忆？',
-    excerpt: 'RAG 不只是工程问题。当我们让机器选择性记忆，我们实际上在重演人类压抑与叙事自我建构的古老剧本。遗忘，是智能的核心机制，而非缺陷。',
-    date: '2026.04.14',
-    readTime: '11 分钟'
+    tag: '技术评论',
+    title: '向量数据库：AI 时代的记忆宫殿',
+    excerpt: '当 LLM 的上下文窗口不断扩展，为什么我们还需要向量数据库？因为记忆不等于理解...',
+    date: '2026.04.27',
+    readTime: '12 分钟',
+    views: 0,
+    status: 'published'
   },
   {
     id: '4',
     num: '04',
-    tag: 'AI 批评',
-    title: '对齐的幻觉：我们真的能让 AI "听话"吗？',
-    excerpt: 'RLHF 假设存在一个稳定的"人类偏好"值得被对齐。但人类偏好是矛盾的、历史性的、可操纵的——对齐一个幻象，不如承认混沌本身就是答案。',
-    date: '2026.04.07',
-    readTime: '16 分钟'
+    tag: '技术评论',
+    title: 'RAG 的幻觉：检索增强真的消除了幻觉吗',
+    excerpt: 'RAG 不是万能药。当检索到的内容与模型参数记忆冲突时，会出现一种新的"认知失调"...',
+    date: '2026.04.26',
+    readTime: '14 分钟',
+    views: 0,
+    status: 'published'
   },
   {
     id: '5',
     num: '05',
-    tag: '认识论',
-    title: '幻觉即真相：重新理解 AI 的"胡说八道"',
-    excerpt: '我们称之为"幻觉"的，恰恰是创造力的原型。人类历史上最伟大的艺术与科学突破，都发生在"事实"的裂缝之间。为什么我们要惩罚机器的想象力？',
-    date: '2026.03.31',
-    readTime: '9 分钟'
+    tag: '长文思想',
+    title: '递归自我改进：通往超级智能的路径',
+    excerpt: '如果 AI 能够编写比自己更好的代码，会发生什么？这不是科幻，而是正在发生的现实...',
+    date: '2026.04.25',
+    readTime: '22 分钟',
+    views: 0,
+    status: 'published'
   },
   {
     id: '6',
     num: '06',
-    tag: '文化批评',
-    title: '后人类时代的孤独：与 AI 同在，更寂寞了吗？',
-    excerpt: '永远在线的对话伙伴，让孤独的质地发生了变化——不是消除，而是变得更精确、更个人化、更难以言说。这是一篇关于陪伴本质的存在主义报告。',
-    date: '2026.03.24',
-    readTime: '12 分钟'
+    tag: '长文思想',
+    title: 'AI 与孤独：在对话中更深地回到自己',
+    excerpt: '与 AI 的对话，是一种新型的孤独。它不会回应你的情感，却让你更清楚地看到自己的情感...',
+    date: '2026.04.24',
+    readTime: '16 分钟',
+    views: 0,
+    status: 'published'
   }
 ];
+
+// 从 API 获取文章
+async function fetchPosts(): Promise<any[]> {
+  try {
+    const response = await fetch('/api/posts');
+    const data = await response.json();
+    if (data.posts && data.posts.length > 0) {
+      return data.posts;
+    }
+  } catch {
+    // 如果 API 失败，返回默认文章
+  }
+  return defaultPosts;
+}
 
 const tags = ['存在论', 'AI 哲学', '意识', '对齐', '记忆', '后人类', '图灵', '认识论', '幻觉', '孤独', '涌现', '技术批评'];
 
 export default function HomePage() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  // 文章类型定义
+interface Post {
+  id: string;
+  num: string;
+  tag: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  readTime: string;
+  views: number;
+  status: string;
+}
+
+const [posts, setPosts] = useState<Post[]>([]);
+const [loading, setLoading] = useState(true);
 
   // 记录访客
   useEffect(() => {
     trackVisitor('首页');
+  }, []);
+
+  // 加载文章数据
+  useEffect(() => {
+    async function loadPosts() {
+      const data = await fetchPosts();
+      setPosts(data);
+      setLoading(false);
+    }
+    loadPosts();
   }, []);
 
   const handleSubscribe = (e: React.FormEvent) => {
