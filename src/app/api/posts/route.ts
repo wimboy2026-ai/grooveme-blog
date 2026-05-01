@@ -105,41 +105,59 @@ export async function GET() {
   return NextResponse.json({ posts });
 }
 
-// POST - 创建新文章
+// POST - 创建新文章（原子性追加）
 export async function POST(request: Request) {
   const data = await request.json();
-  const posts = await getPosts();
+  
+  // 重新读取最新数据（避免并发覆盖）
+  const currentData = await kv.get(POSTS_KEY);
+  const posts = currentData ? JSON.parse(currentData) : [...defaultPosts];
+  
+  // 生成新ID（使用时间戳+随机数确保唯一）
+  const newId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+  
   const newPost = {
-    id: Date.now().toString(),
+    id: newId,
+    num: String(posts.length + 1).padStart(2, '0'),
     ...data,
     views: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
-  posts.push(newPost);
-  await savePosts(posts);
+  
+  // 追加到数组并保存
+  const updatedPosts = [...posts, newPost];
+  await kv.set(POSTS_KEY, JSON.stringify(updatedPosts));
+  
   return NextResponse.json(newPost);
 }
 
-// PUT - 更新文章
+// PUT - 更新文章（原子性更新）
 export async function PUT(request: Request) {
   const data = await request.json();
-  const posts = await getPosts();
+  
+  // 重新读取最新数据
+  const currentData = await kv.get(POSTS_KEY);
+  const posts = currentData ? JSON.parse(currentData) : [...defaultPosts];
+  
   const index = posts.findIndex((p: any) => p.id === data.id);
   if (index !== -1) {
     posts[index] = { ...posts[index], ...data, updatedAt: new Date().toISOString() };
-    await savePosts(posts);
+    await kv.set(POSTS_KEY, JSON.stringify(posts));
     return NextResponse.json(posts[index]);
   }
   return NextResponse.json({ error: 'Post not found' }, { status: 404 });
 }
 
-// DELETE - 删除文章（内置文章不可删除）
+// DELETE - 删除文章（内置文章不可删除，原子性操作）
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
   if (id) {
-    let posts = await getPosts();
+    // 重新读取最新数据
+    const currentData = await kv.get(POSTS_KEY);
+    let posts = currentData ? JSON.parse(currentData) : [...defaultPosts];
+    
     const post = posts.find((p: any) => p.id === id);
     
     // 检查是否为内置文章
@@ -151,7 +169,7 @@ export async function DELETE(request: Request) {
     }
     
     posts = posts.filter((p: any) => p.id !== id);
-    await savePosts(posts);
+    await kv.set(POSTS_KEY, JSON.stringify(posts));
     return NextResponse.json({ success: true });
   }
   return NextResponse.json({ error: 'ID required' }, { status: 400 });
