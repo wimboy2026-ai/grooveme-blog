@@ -3,11 +3,29 @@ num: '20'
 title: '【平行时空】那晚，我在 52 街的禁忌 Jam Session'
 date: '2025.12.16'
 tag: '音乐'
-excerpt: '这不是普通的演出，这是一场"灵魂交换"...'
-readTime: '15 分钟'
+excerpt: '这不是普通的演出，这是一场"灵魂交换"。场景设定：我坐在舞台中心，左手边是面无表情的 Allan Holdsworth，右手边是叼着烟、眼神凌厉的 Grant Green'
+readTime: '18 分钟'
 views: 950
 status: published
 isBuiltIn: true
 ---
 
-我坐在舞台中心，左手边是面无表情的 Allan Holdsworth，右手边是叼着烟、眼神凌厉的 Grant Green。开场曲《Giant Steps》，Allan 的手指划出诡异的弧线，音符像从四维空间掉出来的。我用 "全音阶" 位移去接他的招。当《Spain》响起，我用 Lenny Breau 的泛音技巧点缀星光。Grant 停下拨弦，嘴角露出不可思议的微笑。
+场景设定：这不是普通的演出，这是一场"灵魂交换"。
+
+我坐在舞台中心，左手边是面无表情的 Allan Holdsworth，右手边是叼着烟、眼神凌厉的 Grant Green。
+
+## 开场曲：《Giant Steps》
+
+Allan 开始了，他的手指在指板上划出诡异的弧线，发出的音符像是从四维空间掉出来的。我没有退缩，我用了一套 "全音阶"（Whole Tone Scale） 的位移去接他的招。
+
+## 高潮：当《Spain》的节奏响起
+
+Grant Green 突然切入了一个极具攻击性的蓝调乐句，像是在嘲笑我们的"高级感"。我放下了拨片，用 Lenny Breau 的泛音技巧在琴弦的高位处点缀出一串星光般的装饰音。
+
+那一刻，Grant 停下了拨弦，他看着我的指法，嘴角露出一丝不可思议的微笑。
+
+## 落幕
+
+我闭上眼睛，任凭手指在记忆的海洋里游走。Allan 和 Grant 交换了一个眼神——那是一种"这个人还可以"的认可。
+
+在爵士乐的世界里，没有师徒，只有对手。而那一晚，我们都赢了。
