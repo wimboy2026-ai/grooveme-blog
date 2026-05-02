@@ -30,12 +30,27 @@ const DEFAULT_POSTS = [
   { id: '20', num: '20', tag: '音乐', title: '【平行时空】那晚，我在 52 街的禁忌 Jam Session', excerpt: '这不是普通的演出，这是一场"灵魂交换"...', content: '我坐在舞台中心，左手边是面无表情的 Allan Holdsworth，右手边是叼着烟、眼神凌厉的 Grant Green。开场曲《Giant Steps》，Allan 的手指划出诡异的弧线，音符像从四维空间掉出来的。我用 "全音阶" 位移去接他的招。当《Spain》响起，我用 Lenny Breau 的泛音技巧点缀星光。Grant 停下拨弦，嘴角露出不可思议的微笑。', date: '2025.12.16', readTime: '15 分钟', views: 950, status: 'published', isBuiltIn: true },
 ];
 
-// 获取文章（只读 Redis，不读内存）
+// 获取文章（合并模式：保留现有 + 追加新文章）
 export async function getPosts() {
   const data = await redis.get(POSTS_KEY);
-  if (data && Array.isArray(data)) return data;
 
-  // 如果 Redis 为空，初始化并写入默认文章
+  if (data && Array.isArray(data)) {
+    // 有现有数据，需要合并新文章
+    const existingIds = new Set(data.map((p: any) => p.id));
+    const newPosts = DEFAULT_POSTS.filter(p => !existingIds.has(p.id));
+
+    if (newPosts.length > 0) {
+      // 有新增文章，合并后保存
+      const merged = [...data, ...newPosts];
+      await redis.set(POSTS_KEY, merged);
+      return merged;
+    }
+
+    // 没有新增，直接返回现有
+    return data;
+  }
+
+  // Redis 为空，初始化全部20篇
   await redis.set(POSTS_KEY, DEFAULT_POSTS);
   return DEFAULT_POSTS;
 }
