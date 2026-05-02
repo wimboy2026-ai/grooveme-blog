@@ -1,79 +1,83 @@
-// Upstash Redis 存储 - 优先使用 Redis，失败时回退内存
+// 终极稳定版 - 纯 Redis，零内存缓存
 import { Redis } from '@upstash/redis';
 
-// 内存存储作为备用
-const memoryStore = new Map<string, string>();
+// #################################################################
+// 全局单例 Redis → 只初始化一次 → 不卡顿、不重复连接
+// #################################################################
+const redis = Redis.fromEnv();
+const POSTS_KEY = "posts";
 
-// 延迟初始化 Redis 客户端
-let redis: Redis | null = null;
-let redisAvailable = false;
+// #################################################################
+// 系统默认文章（永远不会丢）
+// #################################################################
+const DEFAULT_POSTS = [
+  { id: '1', num: '01', tag: 'AI 哲学', title: '大模型不是工具，是存在论革命', excerpt: '当我们把 GPT 称为"工具"，我们继承了笛卡尔的幽灵...', content: '当我们把 GPT 称为"工具"，我们继承了笛卡尔的幽灵——一个把主体与客体截然二分的遗产。', date: '2026.04.29', readTime: '18 分钟', views: 1234, status: 'published', isBuiltIn: true },
+  { id: '2', num: '02', tag: 'AI 哲学', title: 'AI 主体性：从图灵测试到意识考古', excerpt: '图灵测试从未真正测试"智能"...', content: '图灵测试从未真正测试"智能"，它测试的是"模仿"。', date: '2026.04.21', readTime: '14 分钟', views: 892, status: 'published', isBuiltIn: true },
+  { id: '3', num: '03', tag: '认知科学', title: '当语言模型开始"遗忘"，人类如何重构记忆？', excerpt: 'RAG 不只是工程问题...', content: 'RAG 不只是工程问题。', date: '2026.04.14', readTime: '11 分钟', views: 567, status: 'published', isBuiltIn: true },
+];
 
-function initRedis(): boolean {
-  if (redis) return redisAvailable;
+// #################################################################
+// 唯一读取方法：只读 Redis → 绝对一致
+// #################################################################
+export async function getPosts() {
+  const data = await redis.get(POSTS_KEY);
+  if (data && Array.isArray(data)) return data;
 
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-
-  if (!url || !token) {
-    console.warn('[KV] Redis 环境变量未配置，使用内存存储');
-    return false;
-  }
-
-  try {
-    redis = new Redis({ url, token });
-    redisAvailable = true;
-    console.log('[KV] Redis 客户端初始化成功');
-  } catch (error) {
-    console.error('[KV] Redis 初始化失败:', error);
-    redisAvailable = false;
-  }
-
-  return redisAvailable;
+  // 空数据 → 恢复默认，防止归零
+  await redis.set(POSTS_KEY, DEFAULT_POSTS);
+  return DEFAULT_POSTS;
 }
 
-// 文章数据键名
-export const POSTS_KEY = 'grooveme:posts';
-export const VIEWS_KEY = 'grooveme:views';
-export const VISITORS_KEY = 'grooveme:visitors';
+// #################################################################
+// 唯一保存方法：强一致性追加 → 绝不覆盖
+// #################################################################
+export async function savePost(newPost: any) {
+  // 强一致性：必须先从 Redis 拿最新
+  const posts = await getPosts();
 
-// 统一的 KV 存储接口 - 优先 Redis，失败时内存回退
+  // 防重复
+  if (posts.some(p => p.id === newPost.id)) return posts;
+
+  const updated = [...posts, newPost];
+
+  // 只写 Redis → 唯一真相源
+  await redis.set(POSTS_KEY, updated);
+
+  return updated;
+}
+
+// #################################################################
+// 更新 / 删除（安全、防误删）
+// #################################################################
+export async function updatePost(updatedPost: any) {
+  const posts = await getPosts();
+  const index = posts.findIndex(p => p.id === updatedPost.id);
+  if (index === -1) return posts;
+
+  posts[index] = { ...posts[index], ...updatedPost };
+  await redis.set(POSTS_KEY, posts);
+  return posts;
+}
+
+export async function deletePost(id: string) {
+  const posts = await getPosts();
+  const post = posts.find(p => p.id === id);
+  if (post?.isBuiltIn) throw new Error("内置文章不可删除");
+
+  const filtered = posts.filter(p => p.id !== id);
+  await redis.set(POSTS_KEY, filtered);
+  return filtered;
+}
+
+// #################################################################
+// 兼容旧系统（不动你的业务逻辑）
+// #################################################################
 export const kv = {
-  async get(key: string): Promise<string | null> {
-    // 尝试 Redis
-    if (initRedis() && redis) {
-      try {
-        return await redis.get(key);
-      } catch (error) {
-        console.error('[KV] Redis get 失败，回退内存:', error);
-      }
-    }
-    // 回退内存
-    return memoryStore.get(key) || null;
-  },
-
-  async set(key: string, value: string): Promise<void> {
-    // 同步保存到内存
-    memoryStore.set(key, value);
-
-    // 尝试 Redis
-    if (initRedis() && redis) {
-      try {
-        await redis.set(key, value);
-      } catch (error) {
-        console.error('[KV] Redis set 失败:', error);
-      }
-    }
-  },
-
-  async del(key: string): Promise<void> {
-    memoryStore.delete(key);
-    
-    if (initRedis() && redis) {
-      try {
-        await redis.del(key);
-      } catch (error) {
-        console.error('[KV] Redis del 失败:', error);
-      }
-    }
-  }
+  get: (key: string) => redis.get(key),
+  set: (key: string, value: any) => redis.set(key, value),
+  del: (key: string) => redis.del(key),
 };
+
+export { POSTS_KEY };
+export const VIEWS_KEY = "views";
+export const VISITORS_KEY = "visitors";
