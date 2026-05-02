@@ -1,7 +1,21 @@
 import { Redis } from '@upstash/redis';
 
-// Upstash Redis 客户端（从环境变量自动读取配置）
-const redis = Redis.fromEnv();
+// 清理环境变量（去除多余引号和空白）
+function cleanEnvVar(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  return value.trim().replace(/^["']|["']$/g, '').replace(/\n/g, '').replace(/\r/g, '');
+}
+
+const UPSTASH_REDIS_REST_URL = cleanEnvVar(process.env.UPSTASH_REDIS_REST_URL);
+const UPSTASH_REDIS_REST_TOKEN = cleanEnvVar(process.env.UPSTASH_REDIS_REST_TOKEN);
+
+// Upstash Redis 客户端（手动传入清理后的配置）
+const redis = (UPSTASH_REDIS_REST_URL && UPSTASH_REDIS_REST_TOKEN)
+  ? new Redis({
+      url: UPSTASH_REDIS_REST_URL,
+      token: UPSTASH_REDIS_REST_TOKEN,
+    })
+  : null;
 
 // 存储 Key
 const POSTS_KEY = "posts";
@@ -33,6 +47,9 @@ const DEFAULT_POSTS = [
 // 获取文章（合并模式：保留现有 + 追加新文章）
 export async function getPosts() {
   try {
+    if (!redis) {
+      throw new Error('Redis 未初始化，请检查 UPSTASH_REDIS_REST_URL 和 UPSTASH_REDIS_REST_TOKEN 环境变量');
+    }
     console.log('[KV] getPosts - 开始读取 Redis');
     const data = await redis.get(POSTS_KEY);
     console.log('[KV] getPosts - Redis 数据:', data ? '有数据' : '无数据');
@@ -66,6 +83,7 @@ export async function getPosts() {
 
 // 保存文章（强一致性：先读后写，绝不覆盖）
 export async function savePost(newPost: any) {
+  if (!redis) throw new Error('Redis 未初始化');
   const posts = await getPosts();
   if (posts.some(p => p.id === newPost.id)) return posts;
 
@@ -76,6 +94,7 @@ export async function savePost(newPost: any) {
 
 // 更新文章
 export async function updatePost(updatedPost: any) {
+  if (!redis) throw new Error('Redis 未初始化');
   const posts = await getPosts();
   const index = posts.findIndex(p => p.id === updatedPost.id);
   if (index === -1) return posts;
@@ -87,6 +106,7 @@ export async function updatePost(updatedPost: any) {
 
 // 删除文章（保护内置文章）
 export async function deletePost(id: string) {
+  if (!redis) throw new Error('Redis 未初始化');
   const posts = await getPosts();
   const post = posts.find(p => p.id === id);
 
