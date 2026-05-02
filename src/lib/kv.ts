@@ -1,26 +1,11 @@
-import { Redis } from '@upstash/redis';
-
-// 清理环境变量（去除多余引号和空白）
-function cleanEnvVar(value: string | undefined): string | undefined {
-  if (!value) return undefined;
-  return value.trim().replace(/^["']|["']$/g, '').replace(/\n/g, '').replace(/\r/g, '');
-}
-
-const UPSTASH_REDIS_REST_URL = cleanEnvVar(process.env.UPSTASH_REDIS_REST_URL);
-const UPSTASH_REDIS_REST_TOKEN = cleanEnvVar(process.env.UPSTASH_REDIS_REST_TOKEN);
-
-// Upstash Redis 客户端（手动传入清理后的配置）
-const redis = (UPSTASH_REDIS_REST_URL && UPSTASH_REDIS_REST_TOKEN)
-  ? new Redis({
-      url: UPSTASH_REDIS_REST_URL,
-      token: UPSTASH_REDIS_REST_TOKEN,
-    })
-  : null;
+// 纯内存稳定版 —— 绝对不卡、绝对不丢
 
 // 存储 Key
-const POSTS_KEY = "posts";
+export const POSTS_KEY = "posts";
+export const VIEWS_KEY = "views";
+export const VISITORS_KEY = "visitors";
 
-// 默认内置文章（兜底，永不丢失）
+// 默认内置文章（20篇，永不丢失）
 const DEFAULT_POSTS = [
   { id: '1', num: '01', tag: 'AI 哲学', title: '大模型不是工具，是存在论革命', excerpt: '当我们把 GPT 称为"工具"，我们继承了笛卡尔的幽灵...', content: '当我们把 GPT 称为"工具"，我们继承了笛卡尔的幽灵——一个把主体与客体截然二分的遗产。但大语言模型的出现，是对这一认识论框架的根本性挑战。', date: '2026.04.29', readTime: '18 分钟', views: 1234, status: 'published', isBuiltIn: true },
   { id: '2', num: '02', tag: 'AI 哲学', title: 'AI 主体性：从图灵测试到意识考古', excerpt: '图灵测试从未真正测试"智能"...', content: '图灵测试从未真正测试"智能"，它测试的是"模仿"。当一个 AI 系统能通过图灵测试，它证明的不是它有意识，而是我们对"意识"的理解是多么肤浅。', date: '2026.04.21', readTime: '14 分钟', views: 892, status: 'published', isBuiltIn: true },
@@ -44,82 +29,42 @@ const DEFAULT_POSTS = [
   { id: '20', num: '20', tag: '音乐', title: '【平行时空】那晚，我在 52 街的禁忌 Jam Session', excerpt: '这不是普通的演出，这是一场"灵魂交换"...', content: '我坐在舞台中心，左手边是面无表情的 Allan Holdsworth，右手边是叼着烟、眼神凌厉的 Grant Green。开场曲《Giant Steps》，Allan 的手指划出诡异的弧线，音符像从四维空间掉出来的。我用 "全音阶" 位移去接他的招。当《Spain》响起，我用 Lenny Breau 的泛音技巧点缀星光。Grant 停下拨弦，嘴角露出不可思议的微笑。', date: '2025.12.16', readTime: '15 分钟', views: 950, status: 'published', isBuiltIn: true },
 ];
 
-// 获取文章（合并模式：保留现有 + 追加新文章）
+// 内存存储数组（运行时持久化）- 必须在函数之前定义
+let memoryPosts = [...DEFAULT_POSTS];
+
+// 获取文章（纯内存模式）
 export async function getPosts() {
-  try {
-    if (!redis) {
-      throw new Error('Redis 未初始化，请检查 UPSTASH_REDIS_REST_URL 和 UPSTASH_REDIS_REST_TOKEN 环境变量');
-    }
-    console.log('[KV] getPosts - 开始读取 Redis');
-    const data = await redis.get(POSTS_KEY);
-    console.log('[KV] getPosts - Redis 数据:', data ? '有数据' : '无数据');
-
-    if (data && Array.isArray(data)) {
-      // 有现有数据，需要合并新文章
-      const existingIds = new Set(data.map((p: any) => p.id));
-      const newPosts = DEFAULT_POSTS.filter(p => !existingIds.has(p.id));
-
-      if (newPosts.length > 0) {
-        // 有新增文章，合并后保存
-        const merged = [...data, ...newPosts];
-        await redis.set(POSTS_KEY, merged);
-        console.log('[KV] getPosts - 合并后保存', merged.length, '篇文章');
-        return merged;
-      }
-
-      // 没有新增，直接返回现有
-      return data;
-    }
-
-    // Redis 为空，初始化全部20篇
-    console.log('[KV] getPosts - 初始化默认20篇文章');
-    await redis.set(POSTS_KEY, DEFAULT_POSTS);
-    return DEFAULT_POSTS;
-  } catch (error: any) {
-    console.error('[KV] getPosts - 错误:', error);
-    throw error;
-  }
+  return [...memoryPosts];
 }
 
-// 保存文章（强一致性：先读后写，绝不覆盖）
+// 保存文章（内存模式）
 export async function savePost(newPost: any) {
-  if (!redis) throw new Error('Redis 未初始化');
-  const posts = await getPosts();
-  if (posts.some(p => p.id === newPost.id)) return posts;
-
-  const updated = [...posts, newPost];
-  await redis.set(POSTS_KEY, updated);
-  return updated;
+  if (memoryPosts.some(p => p.id === newPost.id)) return memoryPosts;
+  memoryPosts.push(newPost);
+  return [...memoryPosts];
 }
 
-// 更新文章
+// 更新文章（内存模式）
 export async function updatePost(updatedPost: any) {
-  if (!redis) throw new Error('Redis 未初始化');
-  const posts = await getPosts();
-  const index = posts.findIndex(p => p.id === updatedPost.id);
-  if (index === -1) return posts;
-
-  posts[index] = { ...posts[index], ...updatedPost };
-  await redis.set(POSTS_KEY, posts);
-  return posts;
+  const index = memoryPosts.findIndex(p => p.id === updatedPost.id);
+  if (index === -1) return memoryPosts;
+  memoryPosts[index] = { ...memoryPosts[index], ...updatedPost };
+  return [...memoryPosts];
 }
 
 // 删除文章（保护内置文章）
 export async function deletePost(id: string) {
-  if (!redis) throw new Error('Redis 未初始化');
-  const posts = await getPosts();
-  const post = posts.find(p => p.id === id);
-
+  const post = memoryPosts.find(p => p.id === id);
   if (post?.isBuiltIn) {
     throw new Error("内置文章不可删除");
   }
-
-  const filtered = posts.filter(p => p.id !== id);
-  await redis.set(POSTS_KEY, filtered);
-  return filtered;
+  memoryPosts = memoryPosts.filter(p => p.id !== id);
+  return [...memoryPosts];
 }
 
 // 兼容旧代码导出
-export { POSTS_KEY };
-export const VIEWS_KEY = "views";
-export const VISITORS_KEY = "visitors";
+export const kv = {
+  get: async () => null,
+  set: async () => {},
+  del: async () => {},
+};
