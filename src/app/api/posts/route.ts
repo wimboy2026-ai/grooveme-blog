@@ -3,26 +3,44 @@ import { getPosts, savePost, updatePost, deletePost } from '@/lib/kv';
 
 // GET - 获取所有文章
 export async function GET() {
-  const posts = await getPosts();
-  return NextResponse.json({ posts });
+  try {
+    console.log('[API] GET /api/posts - 开始调用 getPosts');
+    const posts = await getPosts();
+    console.log('[API] GET /api/posts - 成功返回', posts.length, '篇文章');
+    return NextResponse.json({ posts });
+  } catch (error: any) {
+    console.error('[API] GET /api/posts - 错误:', error);
+    return NextResponse.json(
+      { error: '获取文章失败', details: error.message },
+      { status: 500 }
+    );
+  }
 }
 
 // POST - 创建新文章（使用强一致性 savePost）
 export async function POST(request: Request) {
-  const data = await request.json();
+  try {
+    const data = await request.json();
 
-  const newPost = {
-    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
-    ...data,
-    views: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+    const newPost = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+      ...data,
+      views: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-  // 使用 kv.ts 中的 savePost（强一致性：先读后写）
-  const posts = await savePost(newPost);
+    // 使用 kv.ts 中的 savePost（强一致性：先读后写）
+    const posts = await savePost(newPost);
 
-  return NextResponse.json(newPost);
+    return NextResponse.json(newPost);
+  } catch (error: any) {
+    console.error('[API] POST /api/posts - 错误:', error);
+    return NextResponse.json(
+      { error: '创建文章失败', details: error.message },
+      { status: 500 }
+    );
+  }
 }
 
 // PUT - 更新文章

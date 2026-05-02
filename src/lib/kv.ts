@@ -32,27 +32,36 @@ const DEFAULT_POSTS = [
 
 // 获取文章（合并模式：保留现有 + 追加新文章）
 export async function getPosts() {
-  const data = await redis.get(POSTS_KEY);
+  try {
+    console.log('[KV] getPosts - 开始读取 Redis');
+    const data = await redis.get(POSTS_KEY);
+    console.log('[KV] getPosts - Redis 数据:', data ? '有数据' : '无数据');
 
-  if (data && Array.isArray(data)) {
-    // 有现有数据，需要合并新文章
-    const existingIds = new Set(data.map((p: any) => p.id));
-    const newPosts = DEFAULT_POSTS.filter(p => !existingIds.has(p.id));
+    if (data && Array.isArray(data)) {
+      // 有现有数据，需要合并新文章
+      const existingIds = new Set(data.map((p: any) => p.id));
+      const newPosts = DEFAULT_POSTS.filter(p => !existingIds.has(p.id));
 
-    if (newPosts.length > 0) {
-      // 有新增文章，合并后保存
-      const merged = [...data, ...newPosts];
-      await redis.set(POSTS_KEY, merged);
-      return merged;
+      if (newPosts.length > 0) {
+        // 有新增文章，合并后保存
+        const merged = [...data, ...newPosts];
+        await redis.set(POSTS_KEY, merged);
+        console.log('[KV] getPosts - 合并后保存', merged.length, '篇文章');
+        return merged;
+      }
+
+      // 没有新增，直接返回现有
+      return data;
     }
 
-    // 没有新增，直接返回现有
-    return data;
+    // Redis 为空，初始化全部20篇
+    console.log('[KV] getPosts - 初始化默认20篇文章');
+    await redis.set(POSTS_KEY, DEFAULT_POSTS);
+    return DEFAULT_POSTS;
+  } catch (error: any) {
+    console.error('[KV] getPosts - 错误:', error);
+    throw error;
   }
-
-  // Redis 为空，初始化全部20篇
-  await redis.set(POSTS_KEY, DEFAULT_POSTS);
-  return DEFAULT_POSTS;
 }
 
 // 保存文章（强一致性：先读后写，绝不覆盖）
