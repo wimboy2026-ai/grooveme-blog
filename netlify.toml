@@ -1,0 +1,7 @@
+[functions]
+  [functions."/*"]
+    directory = ".next/server"
+    
+[build]
+  command = "npm run build"
+  publish = ".next/static"
