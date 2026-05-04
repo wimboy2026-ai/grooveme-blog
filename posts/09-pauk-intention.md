@@ -1,14 +1,3 @@
----
-num: '09'
-title: 'Pauk的微信意图：意义的消失或混沌'
-date: '2026.03.03'
-tag: '认知与感受'
-excerpt: 'How hard can it be！"意义的消失或混沌"，我通过高强度认知和人格独立来对抗平庸与虚无'
-readTime: '12 分钟'
-views: 920
-status: published
-isBuiltIn: true
----
 
 "How hard can it be！"
 

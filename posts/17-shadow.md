@@ -1,14 +1,3 @@
----
-num: '17'
-title: 'shadow'
-date: '2026.01.06'
-tag: '艺术'
-excerpt: 'From heart to here, shadow of the tree, shadow of the house。那些经历，only my shadow'
-readTime: '6 分钟'
-views: 520
-status: published
-isBuiltIn: true
----
 
 看着他
 移动的影子呵

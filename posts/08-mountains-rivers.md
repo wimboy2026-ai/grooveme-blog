@@ -1,18 +1,5 @@
----
-num: '08'
-title: '山河故人'
-date: '2026.03.10'
-tag: '艺术'
-excerpt: '你不自觉的沉默，站在街道的另一面，恍然间。灿烂还灿烂着的夜晚，微风几许...'
-readTime: '8 分钟'
-views: 580
-status: published
-isBuiltIn: true
----
 
-你不自觉的沉默
-站在街道的另一面
-恍然间
+
 
 灿烂还灿烂着
 的夜晚
