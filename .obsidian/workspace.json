@@ -51,12 +51,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "posts/20-jam-session.md",
+                "file": "posts/01-Anxieties Over the Final Rest of Life.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "20-jam-session"
+              "title": "01-Anxieties Over the Final Rest of Life"
             }
           },
           {
@@ -260,14 +260,17 @@
   },
   "active": "86910a25db0606d8",
   "lastOpenFiles": [
+    "posts/02-ai-subjectivity.md",
+    "posts/03-llm-forgetting.md",
+    "posts/04-alignment-illusion.md",
+    "posts/06-posthuman-loneliness.md",
+    "posts/07-ai-institution.md",
+    "posts/05-At the Intersection of Me and AI -Words and Music.md",
+    "posts/01-Anxieties Over the Final Rest of Life.md",
+    "posts/20-jam-session.md",
     "posts/21-ai-revolution.md",
     "posts/23-hallucination-truth.md",
-    "posts/05-At the Intersection of Me and AI -Words and Music.md",
-    "posts/06-posthuman-loneliness.md",
     "posts/24-Children of the 70s.md",
-    "posts/01-Anxieties Over the Final Rest of Life.md",
-    "posts/04-alignment-illusion.md",
-    "posts/07-ai-institution.md",
     "posts/08-mountains-rivers.md",
     "posts/09-pauk-intention.md",
     "posts/10-atheism-inward.md",
@@ -279,10 +282,7 @@
     "posts/16-open-source.md",
     "posts/18-jazz-guitar-1.md",
     "posts/19-jazz-guitar-2.md",
-    "posts/20-jam-session.md",
     "posts/17-shadow.md",
-    "posts/03-llm-forgetting.md",
-    "posts/02-ai-subjectivity.md",
     "temp/未命名.md",
     "temp/自动化部署配置清单.md",
     "temp",

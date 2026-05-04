@@ -1,3 +1,14 @@
+---
+num: '20'
+title: 'Jam Session：与传奇的灵魂交换'
+date: '2026.05.03'
+tag: '其他'
+excerpt: '这不是普通的演出，这是一场"灵魂交换"'
+readTime: '8 分钟'
+views: 350
+status: published
+isBuiltIn: false
+---
 
 场景设定：这不是普通的演出，这是一场"灵魂交换"。
 
