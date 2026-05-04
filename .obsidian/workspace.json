@@ -31,7 +31,8 @@
               "title": "github"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -184,13 +185,23 @@
               "icon": "github",
               "title": "Github Issue Controls"
             }
+          },
+          {
+            "id": "b4bebc1a4a7a9379",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
           }
         ],
-        "currentTab": 5
+        "currentTab": 6
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 658.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -202,10 +213,11 @@
       "command-palette:打开命令面板": false,
       "bases:新建数据库": false,
       "obsidian-excalidraw-plugin:New drawing": false,
-      "githobs:Manage a github issue": false
+      "githobs:Manage a github issue": false,
+      "obsidian-git:Open Git source control": false
     }
   },
-  "active": "0944a38b232c70ad",
+  "active": "0efd454c95ae3999",
   "lastOpenFiles": [
     "创建链接.md",
     "自动化部署配置清单.md",
