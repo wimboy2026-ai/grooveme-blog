@@ -1,10 +1,10 @@
 ---
-num: '24'
-title: '70年代的孩子：黄土、钢铁与一个正在醒来的孩子'
-date: '2026.03.04'
-tag: '文化批评'
-excerpt: '有些人生，不是从出生开始的。而是从"被带走"的那一刻开始'
-readTime: '14 分钟'
+title: "70年代的孩子：黄土、钢铁与一个正在醒来的孩子"
+slug: "children-of-the-70s"
+date: "2026.03.04"
+tags: ["文化批评"]
+excerpt: "有些人生，不是从出生开始的。而是从"被带走"的那一刻开始"
+readTime: "14 分钟"
 views: 710
 status: published
 isBuiltIn: false
