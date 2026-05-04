@@ -11,13 +11,24 @@
             "id": "0944a38b232c70ad",
             "type": "leaf",
             "state": {
-              "type": "bases",
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "关系图谱"
+            }
+          },
+          {
+            "id": "0efd454c95ae3999",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
               "state": {
-                "file": "未命名.base",
-                "viewName": "表格"
+                "file": "github.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-table",
-              "title": "未命名"
+              "icon": "lucide-file",
+              "title": "github"
             }
           }
         ]
@@ -77,7 +88,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 237.5
+    "width": 237.5,
+    "collapsed": true
   },
   "right": {
     "id": "341912dbf2c210ca",
@@ -93,17 +105,16 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "创建链接.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
                 "showSearch": false,
                 "searchQuery": "",
-                "backlinkCollapsed": false,
-                "unlinkedCollapsed": true
+                "backlinkCollapsed": true,
+                "unlinkedCollapsed": false
               },
               "icon": "links-coming-in",
-              "title": "创建链接 的反向链接列表"
+              "title": "反向链接"
             }
           },
           {
@@ -163,13 +174,23 @@
               "icon": "lucide-list",
               "title": "创建链接 的大纲"
             }
+          },
+          {
+            "id": "5357fb74fc34fc60",
+            "type": "leaf",
+            "state": {
+              "type": "github-issue-controls-view",
+              "state": {},
+              "icon": "github",
+              "title": "Github Issue Controls"
+            }
           }
-        ]
+        ],
+        "currentTab": 5
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -179,15 +200,18 @@
       "daily-notes:打开/创建今天的日记": false,
       "templates:插入模板": false,
       "command-palette:打开命令面板": false,
-      "bases:新建数据库": false
+      "bases:新建数据库": false,
+      "obsidian-excalidraw-plugin:New drawing": false,
+      "githobs:Manage a github issue": false
     }
   },
   "active": "0944a38b232c70ad",
   "lastOpenFiles": [
+    "创建链接.md",
     "自动化部署配置清单.md",
+    "github.md",
     "未命名.base",
     "未命名.canvas",
-    "创建链接.md",
     "欢迎.md"
   ]
 }
