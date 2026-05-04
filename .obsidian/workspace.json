@@ -23,7 +23,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2026-05-04人生的归宿隐忧.md",
+                "file": "posts/2026-05-04人生的归宿隐忧.md",
                 "mode": "source",
                 "source": false
               },
@@ -37,7 +37,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "70年代的孩子：黄土、钢铁与一个正在醒来的孩子（1974—1989）.md",
+                "file": "posts/70年代的孩子：黄土、钢铁与一个正在醒来的孩子（1974—1989）.md",
                 "mode": "source",
                 "source": false
               },
@@ -51,7 +51,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "未命名.md",
+                "file": "temp/未命名.md",
                 "mode": "source",
                 "source": false
               },
@@ -65,7 +65,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "欢迎.md",
+                "file": "temp/欢迎.md",
                 "mode": "source",
                 "source": false
               },
@@ -258,17 +258,19 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "86910a25db0606d8",
+  "active": "b2cefa8c5606bf0b",
   "lastOpenFiles": [
-    "70年代的孩子：黄土、钢铁与一个正在醒来的孩子（1974—1989）.md",
-    "未命名.md",
-    "2026-05-04人生的归宿隐忧.md",
-    "在我与AI、文字与音乐的交汇处.md",
-    "欢迎.md",
-    "创建链接.md",
+    "temp/自动化部署配置清单.md",
+    "posts/在我与AI、文字与音乐的交汇处.md",
+    "temp",
+    "文章",
+    "posts/2026-05-04人生的归宿隐忧.md",
+    "posts/70年代的孩子：黄土、钢铁与一个正在醒来的孩子（1974—1989）.md",
+    "temp/未命名.md",
+    "temp/欢迎.md",
+    "temp/创建链接.md",
     "未命名.canvas",
-    "github.md",
-    "自动化部署配置清单.md",
+    "temp/github.md",
     "未命名.base"
   ]
 }
