@@ -25,10 +25,14 @@
             "id": "c8e748b75b2ce0e2",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "posts/31-sound-anti-aging.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "31-sound-anti-aging"
             }
           }
         ],
@@ -216,8 +220,11 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "b2cefa8c5606bf0b",
+  "active": "c8e748b75b2ce0e2",
   "lastOpenFiles": [
+    "posts/anxieties-over-the-final-rest-of-life.md",
+    "posts/at-the-intersection-of-me-and-ai-words-and-music.md",
+    "posts/children-of-the-70s.md",
     "文章/04-alignment-illusion.md",
     "文章/03-llm-forgetting.md",
     "文章/02-ai-subjectivity.md",
@@ -241,9 +248,6 @@
     "文章/08-mountains-rivers.md",
     "文章/07-ai-institution.md",
     "文章/06-posthuman-loneliness.md",
-    "posts/06-posthuman-loneliness.md",
-    "posts/07-ai-institution.md",
-    "posts/21-ai-revolution.md",
     "temp",
     "文章",
     "未命名.canvas",
